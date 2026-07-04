@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "544031175599",
+    "project_id": "prostream-05",
+    "storage_bucket": "prostream-05.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:544031175599:android:4c4d6c94b639205530355a",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrOZij1NAe1A0bUmRlvtkmxEO8uo7KEZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
