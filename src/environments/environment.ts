@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // 🚀 Tu URL de Render sin la barra diagonal al final
+  apiUrl: 'https://api-stream-v2v4.onrender.com' 
 };
 
 /*

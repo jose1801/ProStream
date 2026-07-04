@@ -1,20 +1,71 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>ProStream Admin</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()" title="Cerrar Sesión" style="--color: #ff4961; font-weight: bold;">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon> 
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="dashboard-background ion-padding">
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <ion-card class="user-card">
+    <ion-item lines="none" class="user-item">
+      <ion-avatar slot="start">
+        <div class="avatar-letter">{{ (usuario || 'A').charAt(0).toUpperCase() }}</div>
+      </ion-avatar>
+      <ion-label>
+        <p>Bienvenido de vuelta,</p>
+        <h2>{{ usuario || 'Administrador' }}</h2>
+      </ion-label>
+    </ion-item>
+  </ion-card>
+
+  <h3 class="section-subtitle">Módulos del Sistema</h3>
+
+  <ion-grid fixed class="ion-no-padding">
+    <ion-row>
+      
+      <ion-col size="6" size-md="4">
+        <ion-card class="menu-card" (click)="irClientes()" button="true">
+          <ion-card-content class="menu-card-content">
+            <div class="icon-box color-clientes">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <h3 class="card-title">Clientes</h3>
+            <p class="card-desc">Gestionar abonados</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6" size-md="4">
+        <ion-card class="menu-card" (click)="irServicios()" button="true">
+          <ion-card-content class="menu-card-content">
+            <div class="icon-box color-servicios">
+              <ion-icon name="tv-outline"></ion-icon>
+            </div>
+            <h3 class="card-title">Servicios</h3>
+            <p class="card-desc">Cuentas y pantallas</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6" size-md="4">
+        <ion-card class="menu-card" (click)="irAuditoria()" button="true">
+          <ion-card-content class="menu-card-content">
+            <div class="icon-box color-auditoria">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </div>
+            <h3 class="card-title">Auditoría</h3>
+            <p class="card-desc">Historial de control</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+
 </ion-content>

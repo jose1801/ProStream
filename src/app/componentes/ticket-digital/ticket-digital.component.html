@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>Ticket de Entrega</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrar()">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" style="--background: #f4f5f8;">
+  <div class="ticket-box" style="background: white; padding: 20px; border-radius: 12px; border: 1px dashed #b2b2b2;">
+    <div class="ion-text-center">
+      <h2 style="margin: 0; font-weight: bold; color: #1e2023;">STREAM CIPHER</h2>
+      <p style="font-size: 12px; color: gray; margin: 4px 0;">Comprobante de Servicio Digital</p>
+      <p style="font-size: 11px; color: gray;">{{ fechaActual | date:'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+
+    <hr style="border: none; border-top: 1px dashed #ccc; margin: 16px 0;" />
+
+    <ion-list lines="none" style="padding: 0;">
+      <ion-item style="--min-height: 30px;"><ion-label><strong>Cliente:</strong> {{ datosTicket?.nombre_cliente }}</ion-label></ion-item>
+      <ion-item style="--min-height: 30px;"><ion-label><strong>Plataforma:</strong> {{ datosTicket?.plataforma }}</ion-label></ion-item>
+      <ion-item style="--min-height: 30px;"><ion-label><strong>Perfil:</strong> {{ datosTicket?.perfil }}</ion-label></ion-item>
+      <ion-item style="--min-height: 30px;"><ion-label><strong>PIN de Seguridad:</strong> {{ datosTicket?.pin }}</ion-label></ion-item>
+    </ion-list>
+
+    <hr style="border: none; border-top: 1px dashed #ccc; margin: 16px 0;" />
+
+    <div style="background: #f4f5f8; padding: 12px; border-radius: 8px;">
+      <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: bold;">🔑 Credenciales de la Cuenta:</p>
+      <p style="margin: 2px 0; font-size: 13px;"><strong>User:</strong> {{ datosTicket?.correo_cuenta }}</p>
+      <p style="margin: 2px 0; font-size: 13px;"><strong>Pass:</strong> {{ datosTicket?.contrasenia_cuenta }}</p>
+    </div>
+
+    <hr style="border: none; border-top: 1px dashed #ccc; margin: 16px 0;" />
+
+    <ion-row>
+      <ion-col><span style="color: gray; font-size: 13px;">Vence el:</span><br/><strong>{{ datosTicket?.fecha_vencimiento | date:'dd/MM/yyyy' }}</strong></ion-col>
+      <ion-col class="ion-text-end"><span style="color: gray; font-size: 13px;">Total:</span><br/><strong style="color: #2dd36f; font-size: 18px;">${{ datosTicket?.total }}</strong></ion-col>
+    </ion-row>
+  </div>
+
+  <ion-button expand="block" color="success" class="ion-margin-top" (click)="compartir()">
+    <ion-icon name="copy-outline" slot="start"></ion-icon>
+    Copiar Formato WhatsApp
+  </ion-button>
+</ion-content>

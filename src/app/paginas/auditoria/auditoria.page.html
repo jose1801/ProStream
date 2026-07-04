@@ -1,0 +1,63 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="Atrás"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Historial de Auditoría</ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="exportarRespaldoExcel()" color="warning" title="Respaldo One-Touch Excel">
+        <ion-icon slot="icon-only" name="download-outline" style="color: var(--ion-color-warning);"></ion-icon>
+      </ion-button>
+      <ion-button (click)="obtenerHistorialAuditoria()" title="Recargar">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar color="dark">
+    <ion-searchbar placeholder="Buscar por usuario, acción o tabla..." debounce="100" (ionInput)="ejecutarBusqueda($event)"></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" style="--background: #f4f6f9;">
+
+  <div *ngIf="resultados.length === 0" class="ion-text-center ion-padding" style="color: gray; margin-top: 20px;">
+    <ion-icon name="shield-checkmark-outline" style="font-size: 56px; color: var(--ion-color-medium);"></ion-icon>
+    <p style="font-size: 15px; margin-top: 10px;">No se registran eventos de auditoría en Stream Cipher.</p>
+  </div>
+
+  <ion-list style="background: transparent;">
+    <ion-item *ngFor="let item of resultados" lines="none" style="margin-bottom: 12px; border-radius: 12px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.03); padding: 6px 0;">
+      
+      <ion-icon name="shield-checkmark-outline" slot="start" color="primary" style="font-size: 26px; margin-left: 8px;"></ion-icon>
+      
+      <ion-label style="margin-left: 4px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <h2 style="font-weight: bold; color: #111; font-size: 16px; margin: 0;">{{ item.accion }}</h2>
+          <ion-badge [color]="getBadgeColor(item.accion)" style="font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px;">
+            {{ item.tabla_afectada | uppercase }}
+          </ion-badge>
+        </div>
+
+        <p style="color: #555; font-size: 13px; margin: 2px 0; display: inline-flex; align-items: center;">
+          <ion-icon name="person-outline" style="margin-right: 4px; font-size: 14px;"></ion-icon>
+          Usuario: <strong style="color: #222; margin-left: 3px;">{{ item.usuario || 'Sistema Autónomo' }}</strong>
+        </p>
+        
+        <br>
+        
+        <p style="color: #777; font-size: 12px; margin: 2px 0; display: inline-flex; align-items: center;">
+          <ion-icon name="time-outline" style="margin-right: 4px; font-size: 14px;"></ion-icon>
+          Fecha: {{ item.fecha_registro | date:'dd/MM/yyyy - HH:mm:ss' }}
+        </p>
+
+        <div *ngIf="item.detalles" style="margin-top: 8px; background: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 12px; color: #444; font-family: monospace;">
+          {{ item.detalles }}
+        </div>
+      </ion-label>
+
+    </ion-item>
+  </ion-list>
+
+</ion-content>

@@ -1,0 +1,120 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="Atrás"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Plataformas de Streaming</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="setOpenModal(true)" title="Añadir Plataforma">
+        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar color="dark">
+    <ion-searchbar placeholder="Buscar plataforma..." debounce="100" (ionInput)="ejecutarBusqueda($event)"></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <div *ngIf="resultados.length === 0" class="ion-text-center ion-padding" style="color: gray; margin-top: 20px;">
+    <ion-icon name="search-outline" style="font-size: 56px; color: var(--ion-color-medium);"></ion-icon>
+    <p style="font-size: 15px; margin-top: 10px;">No se encontraron plataformas registradas.</p>
+  </div>
+
+  <ion-list style="background: transparent;">
+    <ion-item-sliding *ngFor="let item of resultados" style="margin-bottom: 10px; border-radius: 10px; overflow: hidden; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.04);">
+      
+      <ion-item lines="none" (click)="verDetalleServicio(item)" button="true">
+        <ion-avatar slot="start" style="width: 45px; height: 45px;">
+          <img [src]="item.imagen_final" alt="Logo App"/>
+        </ion-avatar>
+        <ion-label>
+          <h2 style="font-weight: bold; color: #222; font-size: 17px; margin: 0;">{{ item.nombre }}</h2>
+          <p style="color: #888; font-size: 13px; margin-top: 2px;">ID App: #{{ item.id }}</p>
+        </ion-label>
+        <ion-badge color="success" slot="end" style="font-size: 15px; font-weight: bold; padding: 6px 10px;">
+          ${{ item.precio_venta }}
+        </ion-badge>
+      </ion-item>
+
+      <ion-item-options slot="end">
+        <ion-item-option color="primary" (click)="abrirEditarServicio(item)">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-item-option>
+        <ion-item-option color="danger" (click)="eliminarServicioBD(item.id)">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </ion-list>
+
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpenModal(false)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>{{ modoEdicion ? 'Editar Plataforma' : 'Nueva Plataforma' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="setOpenModal(false)">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding" style="--background: #f9f9f9;">
+        <ion-list lines="inset" style="border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 20px;">
+          <ion-item>
+            <ion-input label="Nombre de la App" labelPlacement="stacked" [(ngModel)]="nuevoServicio.prod_nombre" type="text" placeholder="Ej: Netflix Premium"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Precio Final ($)" labelPlacement="stacked" [(ngModel)]="nuevoServicio.prod_precio" type="number" placeholder="Ej: 5.50"></ion-input>
+          </ion-item>
+          <ion-item lines="none">
+            <div style="padding: 10px 0; width: 100%;">
+              <p style="font-size: 13px; color: #666; margin: 0 0 8px 0;">Logo de la Aplicación:</p>
+              <input type="file" accept="image/*" id="file-upload" (change)="cargarImagenLocal($event)" style="display: none;"/>
+              <label for="file-upload" style="display: inline-flex; align-items: center; background: #3880ff; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                <ion-icon name="image-outline" style="margin-right: 6px; font-size: 18px;"></ion-icon>
+                Buscar en Dispositivo
+              </label>
+              <div *ngIf="previsualizacionUrl" style="margin-top: 12px;">
+                <ion-avatar style="width: 50px; height: 50px; border: 1px solid #ddd;">
+                  <img [src]="previsualizacionUrl" />
+                </ion-avatar>
+              </div>
+            </div>
+          </ion-item>
+        </ion-list>
+        <div class="ion-padding-horizontal">
+          <ion-button expand="block" (click)="guardarNuevoServicio()" color="success" style="font-weight: bold;">
+            <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
+            {{ modoEdicion ? 'Actualizar Cambios' : 'Registrar y Listar App' }}
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="isDetalleOpen" (didDismiss)="setOpenDetalle(false)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="dark">
+          <ion-title>Detalle de la App</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="setOpenDetalle(false)">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding" style="--background: #f4f6f9;" *ngIf="servicioSeleccionado">
+        <div class="ion-text-center ion-padding-vertical" style="background: white; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+          <ion-avatar style="width: 90px; height: 90px; margin: 0 auto 10px auto;">
+            <img [src]="servicioSeleccionado.imagen_final"/>
+          </ion-avatar>
+          <h2 style="font-weight: bold; margin: 5px 0;">{{ servicioSeleccionado.nombre }}</h2>
+          <p style="color: #666; margin: 0; font-size: 14px;">ID Producto: #{{ servicioSeleccionado.id }}</p>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

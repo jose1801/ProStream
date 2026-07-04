@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>{{ isEditMode ? 'Editar' : 'Agregar' }} Plataforma</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrar()">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="ion-text-center ion-margin-bottom" *ngIf="previewUrl">
+    <ion-avatar style="margin: 0 auto; width: 80px; height: 80px;">
+      <img [src]="previewUrl" alt="Vista previa logo" />
+    </ion-avatar>
+  </div>
+
+  <ion-list lines="inset">
+    <ion-item>
+      <ion-label position="stacked">Nombre de la Aplicación</ion-label>
+      <ion-input [(ngModel)]="nombre" type="text" placeholder="Ej: Netflix Premium"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Precio de Costo ($)</ion-label>
+      <ion-input [(ngModel)]="precio_costo" type="number" placeholder="0.00"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Precio de Venta ($)</ion-label>
+      <ion-input [(ngModel)]="precio_venta" type="number" placeholder="0.00"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Stock Inicial de Perfiles</ion-label>
+      <ion-input [(ngModel)]="stock" type="number" placeholder="0"></ion-input>
+    </ion-item>
+
+    <div class="ion-padding-top">
+      <ion-label color="medium" style="display:block; margin-bottom:8px;">Seleccionar Logo de la Plataforma:</ion-label>
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+    </div>
+  </ion-list>
+
+  <ion-button expand="block" color="primary" class="ion-margin-top" (click)="guardar()" [disabled]="!nombre">
+    <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+    Guardar Cambios
+  </ion-button>
+</ion-content>
