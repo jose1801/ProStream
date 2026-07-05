@@ -11,6 +11,10 @@ import {
 } from 'ionicons/icons';
 
 import html2canvas from 'html2canvas';
+
+// 🌟 IMPORTACIONES NATIVAS PARA ALMACENAMIENTO EN LA APK
+import { Filesystem, Directory } from '@capacitor/filesystem';
+
 // 🌟 IMPORTACIÓN DEL ENTORNO GLOBAL EN PRODUCCIÓN
 import { environment } from '../../../environments/environment';
 
@@ -68,7 +72,6 @@ export class ClientesPage implements OnInit {
   }
 
   obtenerClientesBD() {
-    // 🚀 CAMBIO: Apunta a Render dinámicamente
     this.http.get(`${environment.apiUrl}/api/clientes`).subscribe({
       next: (res: any) => { 
         this.clientesBaseCompleta = res; 
@@ -79,7 +82,6 @@ export class ClientesPage implements OnInit {
   }
 
   cargarAppsDisponibles() {
-    // 🚀 CAMBIO: Apunta a Render dinámicamente
     this.http.get(`${environment.apiUrl}/api/productos`).subscribe({
       next: (res: any) => this.appsDisponibles = res
     });
@@ -139,6 +141,7 @@ export class ClientesPage implements OnInit {
     this.isTicketOpen = true; 
   }
 
+  // 🎫 ALMACENAMIENTO NATIVO DE LA IMAGEN EN LA APK (SOLO DESCARGA)
   async descargarComprobanteTicket() {
     const contenedorHTML = document.getElementById('contenedor-ticket-digital');
     
@@ -154,16 +157,24 @@ export class ClientesPage implements OnInit {
         backgroundColor: '#ffffff'
       });
 
-      const nombreArchivo = `Ticket_${this.datosTicket.nombre.replace(/ /g, '_')}.png`;
+      const nombreArchivo = `Ticket_${this.datosTicket.nombre.replace(/ /g, '_')}_${Date.now()}.png`;
+      const dataUrlImagen = canvas.toDataURL('image/png');
+      const base64Limpio = dataUrlImagen.split(',')[1]; 
 
-      const disparadorDescarga = document.createElement('a');
-      disparadorDescarga.download = nombreArchivo;
-      disparadorDescarga.href = canvas.toDataURL('image/png');
-      disparadorDescarga.click();
+      // 1. Guardar la imagen de forma silenciosa en la carpeta Documents
+      await Filesystem.writeFile({
+        path: nombreArchivo,
+        data: base64Limpio,
+        directory: Directory.Documents,
+        recursive: true
+      });
+
+      // 2. Mensaje informativo de descarga exitosa
+      alert(`🎫 Ticket guardado con éxito. Puedes encontrar la imagen en tu carpeta interna 'Documentos' como: ${nombreArchivo}`);
 
     } catch (error: any) {
-      console.error('Error al descargar el ticket:', error);
-      alert('Inconveniente al descargar el ticket: ' + error.message);
+      console.error('Error al descargar el ticket nativo:', error);
+      alert('Inconveniente al guardar el ticket en la APK: ' + error.message);
     }
   }
 
@@ -176,7 +187,6 @@ export class ClientesPage implements OnInit {
     }
 
     if (confirm('¿Deseas eliminar permanentemente a este cliente de Stream Cipher?')) {
-      // 🚀 CAMBIO: Apunta a Render dinámicamente con las variables de auditoría
       this.http.delete(`${environment.apiUrl}/api/clientes/${id}?operador=${usuarioLogueado}`).subscribe({
         next: () => { 
           alert('Cliente eliminado exitosamente.'); 
@@ -203,7 +213,6 @@ export class ClientesPage implements OnInit {
     this.nuevoCliente.operador_auditoria = usuarioLogueado;
 
     if (this.modoEdicion) {
-      // 🚀 CAMBIO: Apunta a Render dinámicamente para el PUT
       this.http.put(`${environment.apiUrl}/api/clientes/${this.idClienteEditar}`, this.nuevoCliente).subscribe({
         next: () => { 
           alert('Cliente modificado con éxito.'); 
@@ -213,7 +222,6 @@ export class ClientesPage implements OnInit {
         error: (err) => alert('Error al modificar: ' + err.message)
       });
     } else {
-      // 🚀 CAMBIO: Apunta a Render dinámicamente para el POST
       this.http.post(`${environment.apiUrl}/api/clientes`, this.nuevoCliente).subscribe({
         next: () => { 
           alert('Cliente registrado con éxito.'); 

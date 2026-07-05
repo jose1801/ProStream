@@ -73,19 +73,21 @@
           <ion-item lines="none">
             <div style="padding: 10px 0; width: 100%;">
               <p style="font-size: 13px; color: #666; margin: 0 0 8px 0;">Logo de la Aplicación:</p>
-              <input type="file" accept="image/*" id="file-upload" (change)="cargarImagenLocal($event)" style="display: none;"/>
-              <label for="file-upload" style="display: inline-flex; align-items: center; background: #3880ff; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;">
-                <ion-icon name="image-outline" style="margin-right: 6px; font-size: 18px;"></ion-icon>
-                Buscar en Dispositivo
-              </label>
-              <div *ngIf="previsualizacionUrl" style="margin-top: 12px;">
-                <ion-avatar style="width: 50px; height: 50px; border: 1px solid #ddd;">
+              
+              <ion-button expand="block" fill="solid" color="secondary" (click)="cargarImagenLocal()" style="font-weight: bold; margin: 0;">
+                <ion-icon slot="start" name="image-outline"></ion-icon>
+                Buscar en Galería
+              </ion-button>
+
+              <div *ngIf="previsualizacionUrl" style="margin-top: 15px; display: flex; justify-content: center;">
+                <ion-avatar style="width: 65px; height: 65px; border: 2px solid var(--ion-color-secondary);">
                   <img [src]="previsualizacionUrl" />
                 </ion-avatar>
               </div>
             </div>
           </ion-item>
         </ion-list>
+        
         <div class="ion-padding-horizontal">
           <ion-button expand="block" (click)="guardarNuevoServicio()" color="success" style="font-weight: bold;">
             <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>

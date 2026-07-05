@@ -10,8 +10,10 @@ import {
   refreshOutline, downloadOutline 
 } from 'ionicons/icons';
 
-// 🌟 IMPORTAMOS LA LIBRERÍA EXCEL
 import * as XLSX from 'xlsx';
+
+// 🌟 IMPORTACIONES NATIVAS PARA ALMACENAMIENTO EN LA APK
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 // 🌟 IMPORTACIÓN DEL ENTORNO GLOBAL EN PRODUCCIÓN
 import { environment } from '../../../environments/environment';
@@ -44,7 +46,6 @@ export class AuditoriaPage implements OnInit {
   }
 
   obtenerHistorialAuditoria() {
-    // 🚀 CAMBIO: Apunta a Render dinámicamente para jalar los logs
     this.http.get(`${environment.apiUrl}/api/auditoria`).subscribe({
       next: (res: any) => {
         this.auditoriaBaseCompleta = res;
@@ -68,29 +69,55 @@ export class AuditoriaPage implements OnInit {
     );
   }
 
-  // 🌟 FUNCIONALIDAD: RESPALDO ONE-TOUCH (EXPORTACIÓN COMPLETA A EXCEL)
-  exportarRespaldoExcel() {
+  // 📊 EXPORTACIÓN COMPLETA A EXCEL EN LA CARPETA PÚBLICA DE DESCARGAS
+  async exportarRespaldoExcel() {
     if (this.resultados.length === 0) {
       alert('No hay registros de auditoría disponibles para exportar.');
       return;
     }
 
-    const datosFormateados = this.resultados.map(log => ({
-      'ID Evento': log.id,
-      'Acción Ejecutada': log.accion,
-      'Módulo/Tabla Afectada': log.tabla_afectada ? log.tabla_afectada.toUpperCase() : 'SISTEMA',
-      'Operador / Usuario': log.usuario || 'Sistema Autónomo',
-      'Fecha y Hora del Registro': log.fecha_registro ? new Date(log.fecha_registro).toLocaleString() : 'N/A',
-      'Detalles Técnicos': log.detalles || 'Ninguno'
-    }));
+    try {
+      // 🔑 PASO INTEGRADO: Solicitar permisos de almacenamiento en tiempo de ejecución
+      const estadoPermiso = await Filesystem.checkPermissions();
+      if (estadoPermiso.publicStorage !== 'granted') {
+        const solicitar = await Filesystem.requestPermissions();
+        if (solicitar.publicStorage !== 'granted') {
+          alert('Error: Se requieren permisos de almacenamiento para guardar el archivo.');
+          return;
+        }
+      }
 
-    const hojaTrabajo = XLSX.utils.json_to_sheet(datosFormateados);
-    const libroTrabajo = XLSX.utils.book_new();
-    
-    XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Auditoría Stream Cipher');
+      const datosFormateados = this.resultados.map(log => ({
+        'ID Evento': log.id,
+        'Acción Ejecutada': log.accion,
+        'Módulo/Tabla Afectada': log.tabla_afectada ? log.tabla_afectada.toUpperCase() : 'SISTEMA',
+        'Operador / Usuario': log.usuario || 'Sistema Autónomo',
+        'Fecha y Hora del Registro': log.fecha_registro ? new Date(log.fecha_registro).toLocaleString() : 'N/A',
+        'Detalles Técnicos': log.detalles || 'Ninguno'
+      }));
 
-    const nombreArchivo = `Respaldo_Auditoria_StreamCipher_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(libroTrabajo, nombreArchivo);
+      const hojaTrabajo = XLSX.utils.json_to_sheet(datosFormateados);
+      const libroTrabajo = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Auditoría Stream Cipher');
+
+      // Generamos el excel en base64 limpio
+      const excelBuffer = XLSX.write(libroTrabajo, { bookType: 'xlsx', type: 'base64' });
+      const nombreArchivo = `Respaldo_Auditoria_StreamCipher_${new Date().toISOString().slice(0,10)}.xlsx`;
+
+      // 💾 CAMBIO LOGÍTICO: Escribimos el archivo usando el sistema nativo en el Documents directo de la memoria raíz
+      await Filesystem.writeFile({
+        path: nombreArchivo,
+        data: excelBuffer,
+        directory: Directory.Documents, // Almacenamiento externo público
+        recursive: true
+      });
+
+      alert(`✅ ¡Reporte descargado con éxito!\n\nBúscalo en tu app de 'Mis Archivos' o en la sección de 'Descargas/Documentos' como:\n${nombreArchivo}`);
+
+    } catch (error: any) {
+      console.error('Error crítico al guardar Excel:', error);
+      alert('No se pudo procesar la descarga del reporte. Revisa que la app tenga los permisos activos en los ajustes de tu celular.');
+    }
   }
 
   getBadgeColor(accion: string): string {

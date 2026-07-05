@@ -9,6 +9,9 @@ import {
   cashOutline, imageOutline, createOutline, trashOutline 
 } from 'ionicons/icons';
 
+// 🌟 IMPORTACIONES NATIVAS PARA ACCEDER A LA CÁMARA/GALERÍA EN LA APK
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+
 // 🌟 IMPORTACIÓN DEL ENTORNO GLOBAL EN PRODUCCIÓN
 import { environment } from '../../../environments/environment';
 
@@ -40,7 +43,8 @@ export class ServiciosPage implements OnInit {
     prod_precio: ''
   };
 
-  imagenArchivo: File | null = null; 
+  // Guardamos el Blob binario compatible con Multer
+  imagenArchivo: Blob | null = null; 
   previsualizacionUrl: string | null = null; 
 
   constructor(private http: HttpClient) {
@@ -55,15 +59,25 @@ export class ServiciosPage implements OnInit {
   }
 
   obtenerServiciosBD() {
-    // 🚀 CAMBIO: Apunta a Render para obtener productos
     this.http.get(`${environment.apiUrl}/api/productos`).subscribe({
       next: (res: any) => {
         const productosProcesados = res.map((prod: any) => {
           let urlCompleta = 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150';
+          
           if (prod.logo_url) {
-            // 🚀 CAMBIO: Las imágenes guardadas en uploads ahora cargan con la URL de Render
-            urlCompleta = prod.logo_url.startsWith('uploads/') ? `${environment.apiUrl}/${prod.logo_url}` : prod.logo_url;
+            // 🛡️ BLINDAJE DE IMÁGENES: Detecta de manera inteligente el tipo de origen del logo
+            if (prod.logo_url.startsWith('uploads/')) {
+              // Si fue guardada físicamente en el servidor mediante Multer
+              urlCompleta = `${environment.apiUrl}/${prod.logo_url}`;
+            } else if (prod.logo_url.startsWith('data:image') || prod.logo_url.startsWith('http://') || prod.logo_url.startsWith('https://')) {
+              // Si es un Base64 directo de la galería o una URL completa de internet, la dejamos pasar limpia
+              urlCompleta = prod.logo_url;
+            } else {
+              // Por si guardaste el Base64 puro sin el encabezado MIME
+              urlCompleta = `data:image/png;base64,${prod.logo_url}`;
+            }
           }
+          
           return { ...prod, imagen_final: urlCompleta };
         });
         this.serviciosBaseCompleta = productosProcesados;
@@ -73,11 +87,25 @@ export class ServiciosPage implements OnInit {
     });
   }
 
-  cargarImagenLocal(event: any) {
-    const archivo = event.target.files[0];
-    if (archivo) {
-      this.imagenArchivo = archivo;
-      this.previsualizacionUrl = URL.createObjectURL(archivo);
+  // 📸 REEMPLAZO NATIVO: Abre la galería de Android y empaqueta la foto para Multer
+  async cargarImagenLocal() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri, 
+        source: CameraSource.Photos 
+      });
+
+      if (image && image.webPath) {
+        this.previsualizacionUrl = image.webPath;
+
+        const response = await fetch(image.webPath);
+        this.imagenArchivo = await response.blob();
+        console.log('✅ Imagen empaquetada como archivo binario nativo con éxito.');
+      }
+    } catch (error) {
+      console.error('Error al seleccionar la foto desde la galería nativa:', error);
     }
   }
 
@@ -126,7 +154,6 @@ export class ServiciosPage implements OnInit {
     }
 
     if (confirm('¿Estás completamente seguro de eliminar esta plataforma de Stream Cipher?')) {
-      // 🚀 CAMBIO: DELETE dinámico apuntando a Render
       this.http.delete(`${environment.apiUrl}/api/productos/${id}?operador=${usuarioLogueado}`).subscribe({
         next: () => {
           alert('Plataforma eliminada correctamente.');
@@ -156,11 +183,10 @@ export class ServiciosPage implements OnInit {
     formData.append('operador_auditoria', usuarioLogueado);
 
     if (this.imagenArchivo) {
-      formData.append('prod_imagen', this.imagenArchivo, this.imagenArchivo.name);
+      formData.append('prod_imagen', this.imagenArchivo, `plataforma_${Date.now()}.png`);
     }
 
     if (this.modoEdicion) {
-      // 🚀 CAMBIO: PUT enviado dinámicamente a Render
       this.http.put(`${environment.apiUrl}/api/productos/${this.idServicioEditar}`, formData).subscribe({
         next: () => {
           alert('¡Plataforma actualizada con éxito!');
@@ -170,7 +196,6 @@ export class ServiciosPage implements OnInit {
         error: (err) => alert('Error al actualizar: ' + (err.error?.message || err.message))
       });
     } else {
-      // 🚀 CAMBIO: POST enviado dinámicamente a Render
       this.http.post(`${environment.apiUrl}/api/productos`, formData).subscribe({
         next: () => {
           alert('¡Plataforma registrada con éxito!');
