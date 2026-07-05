@@ -11,6 +11,7 @@ import {
 } from 'ionicons/icons';
 
 import * as XLSX from 'xlsx';
+import { Capacitor } from '@capacitor/core'; // 🌟 AGREGAR ESTO
 
 // 🌟 IMPORTACIONES NATIVAS PARA ALMACENAMIENTO EN LA APK
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -77,16 +78,6 @@ export class AuditoriaPage implements OnInit {
     }
 
     try {
-      // 🔑 PASO INTEGRADO: Solicitar permisos de almacenamiento en tiempo de ejecución
-      const estadoPermiso = await Filesystem.checkPermissions();
-      if (estadoPermiso.publicStorage !== 'granted') {
-        const solicitar = await Filesystem.requestPermissions();
-        if (solicitar.publicStorage !== 'granted') {
-          alert('Error: Se requieren permisos de almacenamiento para guardar el archivo.');
-          return;
-        }
-      }
-
       const datosFormateados = this.resultados.map(log => ({
         'ID Evento': log.id,
         'Acción Ejecutada': log.accion,
@@ -98,25 +89,37 @@ export class AuditoriaPage implements OnInit {
 
       const hojaTrabajo = XLSX.utils.json_to_sheet(datosFormateados);
       const libroTrabajo = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Auditoría Stream Cipher');
+      XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Auditoría');
+      
+      const nombreArchivo = `Reporte_Auditoria_${new Date().toISOString().slice(0,10)}.xlsx`;
 
-      // Generamos el excel en base64 limpio
-      const excelBuffer = XLSX.write(libroTrabajo, { bookType: 'xlsx', type: 'base64' });
-      const nombreArchivo = `Respaldo_Auditoria_StreamCipher_${new Date().toISOString().slice(0,10)}.xlsx`;
+      // 🌐 RUTINA WEB (Navegadores)
+      if (Capacitor.getPlatform() === 'web') {
+        XLSX.writeFile(libroTrabajo, nombreArchivo);
+        alert('✅ ¡Reporte descargado exitosamente en tu navegador!');
+      } 
+      // 📱 RUTINA NATIVA (APK Android)
+      else {
+        const estadoPermiso = await Filesystem.checkPermissions();
+        if (estadoPermiso.publicStorage !== 'granted') {
+          const solicitar = await Filesystem.requestPermissions();
+          if (solicitar.publicStorage !== 'granted') throw new Error('Permisos denegados');
+        }
 
-      // 💾 CAMBIO LOGÍTICO: Escribimos el archivo usando el sistema nativo en el Documents directo de la memoria raíz
-      await Filesystem.writeFile({
-        path: nombreArchivo,
-        data: excelBuffer,
-        directory: Directory.Documents, // Almacenamiento externo público
-        recursive: true
-      });
+        const excelBuffer = XLSX.write(libroTrabajo, { bookType: 'xlsx', type: 'base64' });
+        await Filesystem.writeFile({
+          path: nombreArchivo,
+          data: excelBuffer,
+          directory: Directory.Documents,
+          recursive: true
+        });
 
-      alert(`✅ ¡Reporte descargado con éxito!\n\nBúscalo en tu app de 'Mis Archivos' o en la sección de 'Descargas/Documentos' como:\n${nombreArchivo}`);
+        alert(`✅ ¡Reporte guardado en tu carpeta 'Documentos' del celular!`);
+      }
 
     } catch (error: any) {
-      console.error('Error crítico al guardar Excel:', error);
-      alert('No se pudo procesar la descarga del reporte. Revisa que la app tenga los permisos activos en los ajustes de tu celular.');
+      console.error('Error al exportar:', error);
+      alert('No se pudo procesar la descarga.');
     }
   }
 

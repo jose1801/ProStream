@@ -11,6 +11,7 @@ import {
 } from 'ionicons/icons';
 
 import html2canvas from 'html2canvas';
+import { Capacitor } from '@capacitor/core';
 
 // 🌟 IMPORTACIONES NATIVAS PARA ALMACENAMIENTO EN LA APK
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -143,38 +144,37 @@ export class ClientesPage implements OnInit {
 
   // 🎫 ALMACENAMIENTO NATIVO DE LA IMAGEN EN LA APK (SOLO DESCARGA)
   async descargarComprobanteTicket() {
-    const contenedorHTML = document.getElementById('contenedor-ticket-digital');
-    
-    if (!contenedorHTML) {
-      alert('Error: No se localizó el contenedor gráfico del ticket.');
-      return;
-    }
+    const el = document.getElementById('contenedor-ticket-digital');
+    if (!el) return;
 
     try {
-      const canvas = await html2canvas(contenedorHTML, {
-        useCORS: true,
-        scale: 3, 
-        backgroundColor: '#ffffff'
-      });
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true });
+      const nombre = `Ticket_${Date.now()}.png`;
+      const dataUrl = canvas.toDataURL('image/png');
 
-      const nombreArchivo = `Ticket_${this.datosTicket.nombre.replace(/ /g, '_')}_${Date.now()}.png`;
-      const dataUrlImagen = canvas.toDataURL('image/png');
-      const base64Limpio = dataUrlImagen.split(',')[1]; 
-
-      // 1. Guardar la imagen de forma silenciosa en la carpeta Documents
-      await Filesystem.writeFile({
-        path: nombreArchivo,
-        data: base64Limpio,
-        directory: Directory.Documents,
-        recursive: true
-      });
-
-      // 2. Mensaje informativo de descarga exitosa
-      alert(`🎫 Ticket guardado con éxito. Puedes encontrar la imagen en tu carpeta interna 'Documentos' como: ${nombreArchivo}`);
-
-    } catch (error: any) {
-      console.error('Error al descargar el ticket nativo:', error);
-      alert('Inconveniente al guardar el ticket en la APK: ' + error.message);
+      // 🌐 WEB: Crear enlace invisible para forzar descarga
+      if (Capacitor.getPlatform() === 'web') {
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = nombre;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        alert('🎫 Ticket descargado en tu navegador.');
+      } 
+      // 📱 APK: Guardado nativo mediante Capacitor Filesystem
+      else {
+        await Filesystem.writeFile({
+          path: nombre,
+          data: dataUrl.split(',')[1],
+          directory: Directory.Documents,
+          recursive: true
+        });
+        alert('🎫 Ticket guardado en tu carpeta Documentos.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error al generar ticket: ' + err);
     }
   }
 
