@@ -1,2 +1,32 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+:root {
+  /* Fondo principal: Azul espacial oscuro */
+  --ion-background-color: #0f172a !important; 
+  
+  /* Fondo de las tarjetas (Items/Cards): Un poco más claro para dar profundidad */
+  --ion-item-background: #1e293b !important;
+  
+  /* Texto: Blanco hueso (menos cansado a la vista que el blanco puro) */
+  --ion-text-color: #f8fafc !important;
+  
+  /* Azul Corporativo (Primary): Para botones y acciones */
+  --ion-color-primary: #38bdf8 !important; /* Azul eléctrico */
+  --ion-color-primary-rgb: 56, 189, 248;
+  
+  /* Colores de estado (Éxito, Alerta, Error) */
+  --ion-color-success: #22c55e !important; /* Verde neón */
+  --ion-color-warning: #eab308 !important; /* Amarillo ámbar */
+  --ion-color-danger: #ef4444 !important;  /* Rojo vibrante */
+  
+  /* Bordes suaves */
+  --ion-border-color: #334155 !important;
+}
+
+/* Forzamos el tema para que el sistema no lo cambie */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background-color: #0f172a;
+    --ion-text-color: #f8fafc;
+  }
+}

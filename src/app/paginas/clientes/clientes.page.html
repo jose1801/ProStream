@@ -84,15 +84,19 @@
         </ion-list>
         
         <div class="ion-padding-horizontal">
+          <div class="btn-glow">
           <ion-button expand="block" (click)="generarTicketDesdeFormulario()" color="warning" style="font-weight: bold; margin-bottom: 12px; color: #fff;">
             <ion-icon slot="start" name="receipt-outline"></ion-icon>
             Generar Ticket
           </ion-button>
+          </div>
 
+          <div class="btn-glow">
           <ion-button expand="block" (click)="guardarNuevoCliente()" color="success" style="font-weight: bold;">
             <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
             {{ modoEdicion ? 'Guardar Cambios' : 'Registrar Cliente' }}
           </ion-button>
+          </div>
         </div>
       </ion-content>
     </ng-template>
