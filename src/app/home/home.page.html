@@ -1,8 +1,9 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="dark">
-    <ion-title>ProStream Admin</ion-title>
+  <ion-toolbar style="--background: #0f172a; --border-color: #1e293b;">
+    <ion-title style="color: white; font-weight: bold;">ProStream Admin</ion-title>
+    
     <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()" class="hover-glow-border">
+      <ion-button (click)="cerrarSesion()">
         <ion-icon slot="icon-only" name="log-out-outline" style="color: #ff4961;"></ion-icon> 
       </ion-button>
     </ion-buttons>
@@ -24,8 +25,9 @@
     </ion-item>
   </ion-card>
 
-  <h3 class="section-subtitle" style="color: #e2e8f0; margin-left: 15px; margin-top: 25px;">Módulos del Sistema</h3>
-
+  <h3 class="section-subtitle" style="color: white; margin-left: 15px; margin-top: 25px;">
+    Módulos del Sistema
+  </h3>
   <ion-grid fixed class="ion-no-padding">
     <ion-row>
       
