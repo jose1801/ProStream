@@ -70,3 +70,11 @@
 }
 
 .card-title { font-size: 15px; font-weight: bold; color: #f8fafc; margin: 4px 0; }
+.ion-color-dark {
+  --ion-color-base: #182760 !important;
+  --ion-color-base-rgb: var(--ion-color-dark-rgb, 34, 36, 40) !important;
+  --ion-color-contrast: #e3dbdb !important;
+  --ion-color-contrast-rgb: var(--ion-color-dark-contrast-rgb, 255, 255, 255) !important;
+  --ion-color-shade: var(--ion-color-dark-shade, #1e2023) !important;
+  --ion-color-tint: var(--ion-color-dark-tint, #383a3e) !important;
+}
