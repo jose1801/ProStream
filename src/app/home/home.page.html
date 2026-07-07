@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="dashboard-background ion-padding">
+<ion-content class="dashboard-background ion-padding" style="--background: #0f172a;">
 
   <ion-card class="user-card" style="background: #1e293b; color: white;">
     <ion-item lines="none" class="user-item" style="--background: #1e293b; --color: white;">
@@ -23,51 +23,45 @@
     </ion-item>
   </ion-card>
 
-  <h3 class="section-subtitle">Módulos del Sistema</h3>
+  <h3 class="section-subtitle" style="color: #e2e8f0; margin-left: 5px;">Módulos del Sistema</h3>
 
   <ion-grid fixed class="ion-no-padding">
     <ion-row>
       
       <ion-col size="6" size-md="4">
-        <div class="btn-glow">
-          <ion-card class="menu-card" (click)="irClientes()" button="true">
-            <ion-card-content class="menu-card-content">
-              <div class="icon-box color-clientes">
-                <ion-icon name="people-outline"></ion-icon>
-              </div>
-              <h3 class="card-title">Clientes</h3>
-              <p class="card-desc">Gestionar abonados</p>
-            </ion-card-content>
-          </ion-card>
-        </div>
+        <ion-card class="menu-card menu-card-glow" (click)="irClientes()" button="true">
+          <ion-card-content class="menu-card-content">
+            <div class="icon-box color-clientes">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <h3 class="card-title">Clientes</h3>
+            <p class="card-desc">Gestionar abonados</p>
+          </ion-card-content>
+        </ion-card>
       </ion-col>
 
       <ion-col size="6" size-md="4">
-        <div class="btn-glow">
-          <ion-card class="menu-card" (click)="irServicios()" button="true">
-            <ion-card-content class="menu-card-content">
-              <div class="icon-box color-servicios">
-                <ion-icon name="tv-outline"></ion-icon>
-              </div>
-              <h3 class="card-title">Servicios</h3>
-              <p class="card-desc">Cuentas y pantallas</p>
-            </ion-card-content>
-          </ion-card>
-        </div>
+        <ion-card class="menu-card menu-card-glow" (click)="irServicios()" button="true">
+          <ion-card-content class="menu-card-content">
+            <div class="icon-box color-servicios">
+              <ion-icon name="tv-outline"></ion-icon>
+            </div>
+            <h3 class="card-title">Servicios</h3>
+            <p class="card-desc">Cuentas y pantallas</p>
+          </ion-card-content>
+        </ion-card>
       </ion-col>
 
       <ion-col size="6" size-md="4">
-        <div class="btn-glow">
-          <ion-card class="menu-card" (click)="irAuditoria()" button="true">
-            <ion-card-content class="menu-card-content">
-              <div class="icon-box color-auditoria">
-                <ion-icon name="shield-checkmark-outline"></ion-icon>
-              </div>
-              <h3 class="card-title">Auditoría</h3>
-              <p class="card-desc">Historial de control</p>
-            </ion-card-content>
-          </ion-card>
-        </div>
+        <ion-card class="menu-card menu-card-glow" (click)="irAuditoria()" button="true">
+          <ion-card-content class="menu-card-content">
+            <div class="icon-box color-auditoria">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </div>
+            <h3 class="card-title">Auditoría</h3>
+            <p class="card-desc">Historial de control</p>
+          </ion-card-content>
+        </ion-card>
       </ion-col>
 
     </ion-row>
