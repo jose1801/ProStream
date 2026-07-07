@@ -9,21 +9,21 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="dashboard-background ion-padding" style="--background: #0f172a;">
+<ion-content class="dashboard-background ion-padding">
 
-  <ion-card class="user-card" style="background: #1e293b; color: white;">
-    <ion-item lines="none" class="user-item" style="--background: #1e293b; --color: white;">
-      <ion-avatar slot="start">
+  <ion-card class="user-card-glow">
+    <ion-item lines="none" class="user-item">
+      <ion-avatar slot="start" style="border: 2px solid #38bdf8;">
         <div class="avatar-letter">{{ (usuario || 'A').charAt(0).toUpperCase() }}</div>
       </ion-avatar>
       <ion-label>
-        <p style="color: #94a3b8;">Bienvenido de vuelta,</p>
-        <h2 style="color: white;">{{ usuario || 'Administrador' }}</h2>
+        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 4px;">Bienvenido de vuelta,</p>
+        <h2 style="color: white; font-weight: bold; font-size: 18px;">{{ usuario || 'Administrador' }}</h2>
       </ion-label>
     </ion-item>
   </ion-card>
 
-  <h3 class="section-subtitle" style="color: #e2e8f0; margin-left: 5px;">Módulos del Sistema</h3>
+  <h3 class="section-subtitle" style="color: #e2e8f0; margin-left: 15px; margin-top: 25px;">Módulos del Sistema</h3>
 
   <ion-grid fixed class="ion-no-padding">
     <ion-row>
