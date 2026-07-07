@@ -13,12 +13,13 @@
 
   <ion-card class="user-card-glow">
     <ion-item lines="none" class="user-item">
-      <ion-avatar slot="start" style="border: 2px solid #38bdf8;">
+      <ion-avatar slot="start">
         <div class="avatar-letter">{{ (usuario || 'A').charAt(0).toUpperCase() }}</div>
       </ion-avatar>
-      <ion-label>
-        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 4px;">Bienvenido de vuelta,</p>
-        <h2 style="color: white; font-weight: bold; font-size: 18px;">{{ usuario || 'Administrador' }}</h2>
+    
+      <ion-label style="margin-left: 15px;">
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;">Bienvenido de vuelta,</p>
+        <h2 style="color: white; font-weight: bold; font-size: 18px; margin: 0;">{{ usuario || 'Administrador' }}</h2>
       </ion-label>
     </ion-item>
   </ion-card>

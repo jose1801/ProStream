@@ -58,3 +58,29 @@
   display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* Ajuste fino para el avatar y centrado del texto */
+.user-card-glow {
+  border-radius: 50px !important;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid #334155;
+  margin: 10px 0 20px 0;
+  
+  .user-item { 
+    --background: transparent; 
+    padding: 10px; 
+  }
+
+  .avatar-letter {
+    width: 50px;       // Aumentamos tamaño para que sea más visible
+    height: 50px;
+    background: #38bdf8; // Color del círculo
+    color: white;
+    display: flex;
+    align-items: center; // Centrado vertical
+    justify-content: center; // Centrado horizontal
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 50%; // ¡Esto lo hace circular perfecto!
+  }
+}
