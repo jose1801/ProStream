@@ -24,13 +24,14 @@
   </div>
 
   <ion-list style="background: transparent;">
-    <ion-item-sliding *ngFor="let item of resultados" style="margin-bottom: 10px; border-radius: 10px; overflow: hidden; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.04);">
+    <ion-item-sliding *ngFor="let item of resultados" style="margin-bottom: 10px; border-radius: 10px; overflow: hidden;
+     background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.04);">
       
       <ion-item lines="none" button="true">
         <ion-icon name="person-circle-outline" slot="start" size="large" color="primary"></ion-icon>
         <ion-label>
-          <h2 style="font-weight: bold; color: #222; font-size: 17px; margin: 0;">{{ item.nombre }}</h2>
-          <p style="color: #666; font-size: 14px; margin-top: 2px;">📞 {{ item.telefono }}</p>
+          <h2 style="font-weight: bold; color: #ffffff; font-size: 17px; margin: 0;">{{ item.nombre }}</h2>
+          <p style="color: #ffffff; font-size: 14px; margin-top: 2px;">📞 {{ item.telefono }}</p>
         </ion-label>
         <ion-badge color="secondary" slot="end" *ngIf="item.nombre_producto" style="font-weight: bold; padding: 5px 8px;">
           {{ item.nombre_producto }}
