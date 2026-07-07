@@ -1,9 +1,6 @@
-// Estilo base para el contenedor
-.dashboard-background {
-  --background: #0f172a;
-}
+.dashboard-background { --background: #0f172a; }
 
-// Tarjeta de Usuario Ovalada con animación
+// Tarjeta de Usuario con animación lenta
 .user-card-glow {
   border-radius: 50px !important;
   background: linear-gradient(135deg, #1e293b, #0f172a);
@@ -13,18 +10,28 @@
   margin: 10px 0 20px 0;
   
   .user-item { --background: transparent; }
+  
+  .avatar-letter {
+    width: 50px; height: 50px;
+    background: #38bdf8;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px; font-weight: bold;
+    border-radius: 50%;
+  }
 }
 
-// Módulos del Sistema (Forma ovalada + Brillo al pasar el mouse)
+// Módulos ovalados con fondo animado al pasar el mouse
 .menu-card-glow {
-  border-radius: 50px !important; // ¡Aquí está la forma ovalada!
+  border-radius: 50px !important;
   background: #1e293b;
   border: 1px solid #334155;
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
 
-  // Fondo en movimiento suave al hacer hover
   &::before {
     content: '';
     position: absolute;
@@ -43,7 +50,10 @@
     &::before { opacity: 1; animation: moveBackground 3s ease infinite; }
   }
 
-  .menu-card-content { position: relative; z-index: 1; }
+  .menu-card-content { 
+    position: relative; z-index: 1; 
+    display: flex; flex-direction: column; align-items: center; 
+  }
 }
 
 @keyframes moveBackground {
@@ -52,10 +62,11 @@
   100% { background-position: 0% 50%; }
 }
 
-// Clases de color para los iconos
 .icon-box {
-  width: 55px; height: 55px; border-radius: 18px; // Iconos redondeados
+  width: 55px; height: 55px; border-radius: 18px;
   display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
   background: rgba(255, 255, 255, 0.05);
+  ion-icon { font-size: 26px; display: block; }
 }
 
+.card-title { font-size: 15px; font-weight: bold; color: #f8fafc; margin: 4px 0; }
