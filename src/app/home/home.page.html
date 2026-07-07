@@ -1,10 +1,9 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar color="dark">
     <ion-title>ProStream Admin</ion-title>
-
     <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()" title="Cerrar Sesión" style="--color: #ff4961; font-weight: bold;">
-        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon> 
+      <ion-button (click)="cerrarSesion()" class="hover-glow-border">
+        <ion-icon slot="icon-only" name="log-out-outline" style="color: #ff4961;"></ion-icon> 
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -12,14 +11,14 @@
 
 <ion-content class="dashboard-background ion-padding">
 
-  <ion-card class="user-card">
-    <ion-item lines="none" class="user-item">
+  <ion-card class="user-card" style="background: #1e293b; color: white;">
+    <ion-item lines="none" class="user-item" style="--background: #1e293b; --color: white;">
       <ion-avatar slot="start">
         <div class="avatar-letter">{{ (usuario || 'A').charAt(0).toUpperCase() }}</div>
       </ion-avatar>
       <ion-label>
-        <p>Bienvenido de vuelta,</p>
-        <h2>{{ usuario || 'Administrador' }}</h2>
+        <p style="color: #94a3b8;">Bienvenido de vuelta,</p>
+        <h2 style="color: white;">{{ usuario || 'Administrador' }}</h2>
       </ion-label>
     </ion-item>
   </ion-card>
@@ -30,39 +29,45 @@
     <ion-row>
       
       <ion-col size="6" size-md="4">
-        <ion-card class="menu-card" (click)="irClientes()" button="true">
-          <ion-card-content class="menu-card-content">
-            <div class="icon-box color-clientes">
-              <ion-icon name="people-outline"></ion-icon>
-            </div>
-            <h3 class="card-title">Clientes</h3>
-            <p class="card-desc">Gestionar abonados</p>
-          </ion-card-content>
-        </ion-card>
+        <div class="btn-glow">
+          <ion-card class="menu-card" (click)="irClientes()" button="true">
+            <ion-card-content class="menu-card-content">
+              <div class="icon-box color-clientes">
+                <ion-icon name="people-outline"></ion-icon>
+              </div>
+              <h3 class="card-title">Clientes</h3>
+              <p class="card-desc">Gestionar abonados</p>
+            </ion-card-content>
+          </ion-card>
+        </div>
       </ion-col>
 
       <ion-col size="6" size-md="4">
-        <ion-card class="menu-card" (click)="irServicios()" button="true">
-          <ion-card-content class="menu-card-content">
-            <div class="icon-box color-servicios">
-              <ion-icon name="tv-outline"></ion-icon>
-            </div>
-            <h3 class="card-title">Servicios</h3>
-            <p class="card-desc">Cuentas y pantallas</p>
-          </ion-card-content>
-        </ion-card>
+        <div class="btn-glow">
+          <ion-card class="menu-card" (click)="irServicios()" button="true">
+            <ion-card-content class="menu-card-content">
+              <div class="icon-box color-servicios">
+                <ion-icon name="tv-outline"></ion-icon>
+              </div>
+              <h3 class="card-title">Servicios</h3>
+              <p class="card-desc">Cuentas y pantallas</p>
+            </ion-card-content>
+          </ion-card>
+        </div>
       </ion-col>
 
       <ion-col size="6" size-md="4">
-        <ion-card class="menu-card" (click)="irAuditoria()" button="true">
-          <ion-card-content class="menu-card-content">
-            <div class="icon-box color-auditoria">
-              <ion-icon name="shield-checkmark-outline"></ion-icon>
-            </div>
-            <h3 class="card-title">Auditoría</h3>
-            <p class="card-desc">Historial de control</p>
-          </ion-card-content>
-        </ion-card>
+        <div class="btn-glow">
+          <ion-card class="menu-card" (click)="irAuditoria()" button="true">
+            <ion-card-content class="menu-card-content">
+              <div class="icon-box color-auditoria">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+              </div>
+              <h3 class="card-title">Auditoría</h3>
+              <p class="card-desc">Historial de control</p>
+            </ion-card-content>
+          </ion-card>
+        </div>
       </ion-col>
 
     </ion-row>
