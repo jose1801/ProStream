@@ -12,11 +12,7 @@ import {
 
 import html2canvas from 'html2canvas';
 import { Capacitor } from '@capacitor/core';
-
-// 🌟 IMPORTACIONES NATIVAS PARA ALMACENAMIENTO EN LA APK
 import { Filesystem, Directory } from '@capacitor/filesystem';
-
-// 🌟 IMPORTACIÓN DEL ENTORNO GLOBAL EN PRODUCCIÓN
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -24,11 +20,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './clientes.page.html',
   styleUrls: ['./clientes.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    IonicModule
-  ]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class ClientesPage implements OnInit {
   filtroBusqueda: string = '';
@@ -70,6 +62,23 @@ export class ClientesPage implements OnInit {
   ngOnInit() {
     this.obtenerClientesBD();
     this.cargarAppsDisponibles();
+  }
+
+  // 🔍 LÓGICA DE AUTOCOMPLETADO INTELIGENTE
+  buscarCliente(event: any) {
+    const termino = event.target.value.toLowerCase().trim();
+    if (termino.length < 3) return; 
+
+    const clienteEncontrado = this.clientesBaseCompleta.find(c => 
+      (c.nombre && c.nombre.toLowerCase().includes(termino)) || 
+      (c.telefono && c.telefono.includes(termino))
+    );
+
+    if (clienteEncontrado) {
+      this.nuevoCliente.nombre = clienteEncontrado.nombre;
+      this.nuevoCliente.telefono = clienteEncontrado.telefono;
+      console.log("Cliente detectado y datos autorrellenados.");
+    }
   }
 
   obtenerClientesBD() {
@@ -198,38 +207,40 @@ export class ClientesPage implements OnInit {
   }
 
   guardarNuevoCliente() {
+    // 1. Validar datos mínimos
     if (!this.nuevoCliente.nombre || !this.nuevoCliente.telefono) {
-      alert('Por favor, introduce el nombre y el teléfono.');
-      return;
+        alert('Por favor, introduce el nombre y el teléfono.');
+        return;
     }
 
-    const usuarioLogueado = localStorage.getItem('usuario_nombre');
+    // 2. FORZAR formato de datos (MUY IMPORTANTE)
+    const clienteParaEnviar = {
+        ...this.nuevoCliente,
+        producto_id: Number(this.nuevoCliente.producto_id), // Aseguramos que sea número
+        operador_auditoria: localStorage.getItem('usuario_nombre')
+    };
 
-    if (!usuarioLogueado) {
-      alert('Error: No se localizó un perfil activo. Vuelve a iniciar sesión.');
-      return;
-    }
+    console.log("Datos enviados al servidor:", clienteParaEnviar); // <--- MIRA ESTO EN EL INSPECTOR (F12)
 
-    this.nuevoCliente.operador_auditoria = usuarioLogueado;
+    // 3. Enviar
+    const url = this.modoEdicion 
+      ? `${environment.apiUrl}/api/clientes/${this.idClienteEditar}` 
+      : `${environment.apiUrl}/api/clientes`;
 
-    if (this.modoEdicion) {
-      this.http.put(`${environment.apiUrl}/api/clientes/${this.idClienteEditar}`, this.nuevoCliente).subscribe({
-        next: () => { 
-          alert('Cliente modificado con éxito.'); 
-          this.setOpenModal(false); 
-          this.obtenerClientesBD(); 
-        },
-        error: (err) => alert('Error al modificar: ' + err.message)
-      });
-    } else {
-      this.http.post(`${environment.apiUrl}/api/clientes`, this.nuevoCliente).subscribe({
-        next: () => { 
-          alert('Cliente registrado con éxito.'); 
-          this.setOpenModal(false); 
-          this.obtenerClientesBD(); 
-        },
-        error: (err) => alert('Error al registrar: ' + err.message)
-      });
-    }
+    const request = this.modoEdicion 
+      ? this.http.put(url, clienteParaEnviar) 
+      : this.http.post(url, clienteParaEnviar);
+
+    request.subscribe({
+      next: () => { 
+        alert('Registro exitoso.'); 
+        this.setOpenModal(false); 
+        this.obtenerClientesBD(); 
+      },
+      error: (err) => {
+        console.error("Detalle del error:", err); // <--- MIRA EL DETALLE AQUÍ
+        alert('Error 400: Revisa la consola (F12) para ver qué campo está fallando.');
+      }
+    });
   }
 }
