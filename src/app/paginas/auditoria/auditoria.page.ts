@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular'; // 🌟 ToastController agregado
 
 import { addIcons } from 'ionicons';
 import { 
@@ -11,12 +11,8 @@ import {
 } from 'ionicons/icons';
 
 import * as XLSX from 'xlsx';
-import { Capacitor } from '@capacitor/core'; // 🌟 AGREGAR ESTO
-
-// 🌟 IMPORTACIONES NATIVAS PARA ALMACENAMIENTO EN LA APK
+import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-
-// 🌟 IMPORTACIÓN DEL ENTORNO GLOBAL EN PRODUCCIÓN
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -24,18 +20,15 @@ import { environment } from '../../../environments/environment';
   templateUrl: './auditoria.page.html',
   styleUrls: ['./auditoria.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    IonicModule
-  ]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class AuditoriaPage implements OnInit {
   filtroBusqueda: string = '';
   resultados: any[] = [];
   auditoriaBaseCompleta: any[] = [];
 
-  constructor(private http: HttpClient) {
+  // 🌟 Constructor con ToastController
+  constructor(private http: HttpClient, private toastCtrl: ToastController) {
     addIcons({ 
       searchOutline, shieldCheckmarkOutline, timeOutline, 
       personOutline, refreshOutline, downloadOutline 
@@ -46,13 +39,27 @@ export class AuditoriaPage implements OnInit {
     this.obtenerHistorialAuditoria();
   }
 
+  // 📢 FUNCIÓN MAESTRA PARA TOASTS
+  async mostrarToast(mensaje: string, color: string = 'success') {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: 2000,
+      position: 'bottom',
+      color: color
+    });
+    await toast.present();
+  }
+
   obtenerHistorialAuditoria() {
     this.http.get(`${environment.apiUrl}/api/auditoria`).subscribe({
       next: (res: any) => {
         this.auditoriaBaseCompleta = res;
         this.resultados = res;
       },
-      error: (err) => console.error('Error al obtener logs de auditoría:', err)
+      error: (err) => {
+        console.error('Error:', err);
+        this.mostrarToast('❌ Error al obtener logs', 'danger');
+      }
     });
   }
 
@@ -62,7 +69,6 @@ export class AuditoriaPage implements OnInit {
       this.resultados = this.auditoriaBaseCompleta;
       return;
     }
-    
     this.resultados = this.auditoriaBaseCompleta.filter(log => 
       (log.usuario && log.usuario.toLowerCase().includes(this.filtroBusqueda)) ||
       (log.accion && log.accion.toLowerCase().includes(this.filtroBusqueda)) ||
@@ -70,14 +76,15 @@ export class AuditoriaPage implements OnInit {
     );
   }
 
-  // 📊 EXPORTACIÓN COMPLETA A EXCEL EN LA CARPETA PÚBLICA DE DESCARGAS
   async exportarRespaldoExcel() {
     if (this.resultados.length === 0) {
-      alert('No hay registros de auditoría disponibles para exportar.');
+      this.mostrarToast('⚠️ No hay registros para exportar', 'warning');
       return;
     }
 
     try {
+      this.mostrarToast('⏳ Generando archivo Excel...', 'medium');
+
       const datosFormateados = this.resultados.map(log => ({
         'ID Evento': log.id,
         'Acción Ejecutada': log.accion,
@@ -93,19 +100,10 @@ export class AuditoriaPage implements OnInit {
       
       const nombreArchivo = `Reporte_Auditoria_${new Date().toISOString().slice(0,10)}.xlsx`;
 
-      // 🌐 RUTINA WEB (Navegadores)
       if (Capacitor.getPlatform() === 'web') {
         XLSX.writeFile(libroTrabajo, nombreArchivo);
-        alert('✅ ¡Reporte descargado exitosamente en tu navegador!');
-      } 
-      // 📱 RUTINA NATIVA (APK Android)
-      else {
-        const estadoPermiso = await Filesystem.checkPermissions();
-        if (estadoPermiso.publicStorage !== 'granted') {
-          const solicitar = await Filesystem.requestPermissions();
-          if (solicitar.publicStorage !== 'granted') throw new Error('Permisos denegados');
-        }
-
+        this.mostrarToast('✅ ¡Reporte descargado!');
+      } else {
         const excelBuffer = XLSX.write(libroTrabajo, { bookType: 'xlsx', type: 'base64' });
         await Filesystem.writeFile({
           path: nombreArchivo,
@@ -113,13 +111,11 @@ export class AuditoriaPage implements OnInit {
           directory: Directory.Documents,
           recursive: true
         });
-
-        alert(`✅ ¡Reporte guardado en tu carpeta 'Documentos' del celular!`);
+        this.mostrarToast('✅ ¡Reporte guardado en Documentos!');
       }
-
     } catch (error: any) {
-      console.error('Error al exportar:', error);
-      alert('No se pudo procesar la descarga.');
+      console.error(error);
+      this.mostrarToast('❌ Error al procesar descarga', 'danger');
     }
   }
 

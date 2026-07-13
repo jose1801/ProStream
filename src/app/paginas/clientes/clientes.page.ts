@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular'; // 🌟 ToastController agregado
 
 import { addIcons } from 'ionicons';
 import { 
@@ -51,7 +51,8 @@ export class ClientesPage implements OnInit {
     descripcion: ''
   };
 
-  constructor(private http: HttpClient) {
+  // 🌟 Inyectamos ToastController
+  constructor(private http: HttpClient, private toastCtrl: ToastController) {
     addIcons({ 
       searchOutline, personCircleOutline, addOutline, 
       checkmarkDoneOutline, createOutline, trashOutline,
@@ -62,6 +63,18 @@ export class ClientesPage implements OnInit {
   ngOnInit() {
     this.obtenerClientesBD();
     this.cargarAppsDisponibles();
+  }
+
+  // 📢 FUNCIÓN MAESTRA PARA MENSAJES TOAST
+  async mostrarToast(mensaje: string, color: string = 'success', duracion: number = 2000) {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: duracion,
+      position: 'bottom',
+      color: color,
+      cssClass: 'custom-toast' // Opcional por si luego quieres darle estilos extra en SCSS
+    });
+    await toast.present();
   }
 
   // 🔍 LÓGICA DE AUTOCOMPLETADO INTELIGENTE
@@ -77,6 +90,8 @@ export class ClientesPage implements OnInit {
     if (clienteEncontrado) {
       this.nuevoCliente.nombre = clienteEncontrado.nombre;
       this.nuevoCliente.telefono = clienteEncontrado.telefono;
+      // 🌟 Toast de Autocompletado
+      this.mostrarToast(`✨ Autocompletado: ${clienteEncontrado.nombre}`, 'tertiary', 1500);
       console.log("Cliente detectado y datos autorrellenados.");
     }
   }
@@ -87,13 +102,17 @@ export class ClientesPage implements OnInit {
         this.clientesBaseCompleta = res; 
         this.resultados = res; 
       },
-      error: (err) => console.error('Error al obtener clientes:', err)
+      error: (err) => {
+        console.error('Error al obtener clientes:', err);
+        this.mostrarToast('❌ Error al cargar los clientes', 'danger');
+      }
     });
   }
 
   cargarAppsDisponibles() {
     this.http.get(`${environment.apiUrl}/api/productos`).subscribe({
-      next: (res: any) => this.appsDisponibles = res
+      next: (res: any) => this.appsDisponibles = res,
+      error: () => this.mostrarToast('❌ Error al cargar servicios disponibles', 'danger')
     });
   }
 
@@ -151,17 +170,19 @@ export class ClientesPage implements OnInit {
     this.isTicketOpen = true; 
   }
 
-  // 🎫 ALMACENAMIENTO NATIVO DE LA IMAGEN EN LA APK (SOLO DESCARGA)
+  // 🎫 ALMACENAMIENTO NATIVO DE LA IMAGEN EN LA APK
   async descargarComprobanteTicket() {
     const el = document.getElementById('contenedor-ticket-digital');
     if (!el) return;
+
+    // 🌟 Toast informando inicio de descarga
+    this.mostrarToast('⏳ Generando ticket...', 'medium', 1000);
 
     try {
       const canvas = await html2canvas(el, { scale: 3, useCORS: true });
       const nombre = `Ticket_${Date.now()}.png`;
       const dataUrl = canvas.toDataURL('image/png');
 
-      // 🌐 WEB: Crear enlace invisible para forzar descarga
       if (Capacitor.getPlatform() === 'web') {
         const link = document.createElement('a');
         link.href = dataUrl;
@@ -169,21 +190,19 @@ export class ClientesPage implements OnInit {
         document.body.appendChild(link);
         link.click();
         link.remove();
-        alert('🎫 Ticket descargado en tu navegador.');
-      } 
-      // 📱 APK: Guardado nativo mediante Capacitor Filesystem
-      else {
+        this.mostrarToast('🎫 Ticket descargado en el navegador', 'success');
+      } else {
         await Filesystem.writeFile({
           path: nombre,
           data: dataUrl.split(',')[1],
           directory: Directory.Documents,
           recursive: true
         });
-        alert('🎫 Ticket guardado en tu carpeta Documentos.');
+        this.mostrarToast('🎫 Ticket guardado en Documentos', 'success');
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Error al generar ticket: ' + err);
+      this.mostrarToast('❌ Error al generar ticket', 'danger');
     }
   }
 
@@ -191,38 +210,39 @@ export class ClientesPage implements OnInit {
     const usuarioLogueado = localStorage.getItem('usuario_nombre');
 
     if (!usuarioLogueado) {
-      alert('Error: No se localizó un perfil activo. Vuelve a iniciar sesión.');
+      this.mostrarToast('❌ Sesión expirada. Vuelve a iniciar sesión.', 'warning');
       return;
     }
 
     if (confirm('¿Deseas eliminar permanentemente a este cliente de Stream Cipher?')) {
       this.http.delete(`${environment.apiUrl}/api/clientes/${id}?operador=${usuarioLogueado}`).subscribe({
         next: () => { 
-          alert('Cliente eliminado exitosamente.'); 
+          this.mostrarToast('🗑️ Cliente eliminado exitosamente', 'dark'); 
           this.obtenerClientesBD(); 
         },
-        error: (err) => alert('Error al eliminar: ' + err.message)
+        error: (err) => this.mostrarToast('❌ Error al eliminar: ' + err.message, 'danger')
       });
     }
   }
 
   guardarNuevoCliente() {
-    // 1. Validar datos mínimos
     if (!this.nuevoCliente.nombre || !this.nuevoCliente.telefono) {
-        alert('Por favor, introduce el nombre y el teléfono.');
+        this.mostrarToast('⚠️ Por favor, introduce el nombre y el teléfono', 'warning');
         return;
     }
 
-    // 2. FORZAR formato de datos (MUY IMPORTANTE)
+    const usuarioLogueado = localStorage.getItem('usuario_nombre');
+    if (!usuarioLogueado) {
+      this.mostrarToast('❌ Error de perfil. Inicia sesión nuevamente.', 'danger');
+      return;
+    }
+
     const clienteParaEnviar = {
         ...this.nuevoCliente,
-        producto_id: Number(this.nuevoCliente.producto_id), // Aseguramos que sea número
-        operador_auditoria: localStorage.getItem('usuario_nombre')
+        producto_id: Number(this.nuevoCliente.producto_id),
+        operador_auditoria: usuarioLogueado
     };
 
-    console.log("Datos enviados al servidor:", clienteParaEnviar); // <--- MIRA ESTO EN EL INSPECTOR (F12)
-
-    // 3. Enviar
     const url = this.modoEdicion 
       ? `${environment.apiUrl}/api/clientes/${this.idClienteEditar}` 
       : `${environment.apiUrl}/api/clientes`;
@@ -233,13 +253,13 @@ export class ClientesPage implements OnInit {
 
     request.subscribe({
       next: () => { 
-        alert('Registro exitoso.'); 
+        this.mostrarToast(this.modoEdicion ? '✅ Cliente actualizado con éxito' : '✅ Cliente registrado con éxito', 'success');
         this.setOpenModal(false); 
         this.obtenerClientesBD(); 
       },
       error: (err) => {
-        console.error("Detalle del error:", err); // <--- MIRA EL DETALLE AQUÍ
-        alert('Error 400: Revisa la consola (F12) para ver qué campo está fallando.');
+        console.error("Detalle del error:", err);
+        this.mostrarToast('❌ Error al procesar la solicitud', 'danger');
       }
     });
   }
